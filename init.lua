@@ -552,6 +552,76 @@ minetest.register_entity("potions:splash_slow_falling_flying", {
 	end
 })
 
+minetest.register_entity("potions:splash_invisibility_flying", {
+	visual = "sprite",
+	visual_size = {x=w/2,y=w/2},
+	collisionbox = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
+	physical = false,
+	textures = {"potion_liquid_overlay.png^[colorize:#4D4DFD:230^splash_potion_bottle_overlay.png"},
+	acc = {x=0, y=-gravity, z=0},
+	pointable = false,
+		on_step = function(self, dtime)
+			local pos = self.object:get_pos()
+			local node = minetest.get_node(pos)
+			local n = node.name
+			local g = minetest.get_node_group(n, "liquid")
+			local d = 0.1
+			local redux_map = {7/8,0.5,0.25}
+			
+			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
+				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				self.object:remove()
+				minetest.add_particlespawner({
+					amount = 58,
+					time = 0.1,
+					minpos = {x=pos.x-d, y=pos.y+0.5, z=pos.z-d},
+					maxpos = {x=pos.x+d, y=pos.y+0.5+d, z=pos.z+d},
+					minvel = {x=-2, y=0, z=-2},
+					maxvel = {x=2, y=2, z=2},
+					minacc = acc,
+					maxacc = acc,
+					minexptime = 0.5,
+					maxexptime = 1.25,
+					minsize = 1,
+					maxsize = 2,
+					collisiondetection = true,
+					vertical = false,
+					texture = "potion_particle_overlay.png^[colorize:#4D4DFD:230",
+				})
+				for _,obj in pairs(minetest.get_objects_inside_radius(pos, 4)) do
+
+					local entity = obj:get_luaentity()
+					if obj:is_player() or entity._cmi_is_mob then
+
+						local pos2 = obj:get_pos()
+						local rad = math.floor(math.sqrt((pos2.x-pos.x)^2 + (pos2.y-pos.y)^2 + (pos2.z-pos.z)^2))
+							if rad or potions.is_obj_hit(self, pos) then
+					obj:set_properties({
+					visual_size = {x = 0, y = 0},
+					collisionbox = {0, 0, 0, 0, 0, 0}
+					})
+
+					obj:set_nametag_attributes({
+					color = {a = 0, r = 255, g = 255, b = 255}
+					})
+				minetest.after(20, function()
+					obj:set_properties({
+					visual_size = {x = 1, y = 1},
+					collisionbox = {-0.35, -1, -0.35, 0.35, 1, 0.35}
+					})
+
+				obj:set_nametag_attributes({
+				color = {a = 255, r = 255, g = 255, b = 255}
+				})
+				end)
+					potions.invisibility_particles(obj)
+						end
+					end
+				end
+			end
+	end
+})
+
 function potions.particles(obj, color)
 	local d = 0.2
 	local pos = obj:get_pos()
@@ -1686,6 +1756,281 @@ function potions.slow_falling_particles(user)
 			end)
 		end
 		
+function potions.invisibility_particles(user)
+			if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(1, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(1.9, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(2.8, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(3.7, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(4.6, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(5.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(6.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(7.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(8.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(9.1, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(10, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(0.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(1.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(2.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(3.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(4.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(5.1, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(6.1, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(7, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(7.8, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(8.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(9.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(0.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(1.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(2.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(3.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(4.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(5.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(6.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(7.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(8.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(9.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(10.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(0.6, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(1.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(2.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(3.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(4.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(5.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(6.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(7.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(8.0, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(9.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(10.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(11.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(12.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(13.6, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(14.8, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(15.7, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(16.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(17.7, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(18.8, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(19.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(20.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(11.0, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(12.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(13.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(14.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(15.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(16.6, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(17.7, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(18.9, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(19.0, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(20.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(11.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(12.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(13.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(14.6, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(15.8, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(16.9, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(17.11, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(18.13, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(19.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(20.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(11.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(12.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(13.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			minetest.after(14.6, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(15.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(16.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(17.5, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(18.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(19.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(20.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(11.4, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(13.0, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(14.2, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+			minetest.after(15.3, function()
+				if user:get_pos() then potions.particles(user, "#4D4DFD") end
+			end)
+		end
+		
 minetest.register_craftitem("potions:regeneration", {
 	description = Colorize("#D2FF00", "Potion of Regeneration").."\n" ..Colorize("#1719B6", "Instant Healing").. "\n" ..Colorize("#FF3800", "Heal per second: 3").. "\n" ..Colorize("#FFD4FF", "Duration: 10 seconds"),
 	inventory_image = "potion_liquid_overlay.png^[colorize:violet:250^potion_bottle_overlay.png",
@@ -1964,31 +2309,39 @@ minetest.register_craftitem("potions:slow_falling", {
 			end,
 })
 
--- TODO: Add weakness and strength potions/splash potions
---minetest.register_craftitem("potions:weakness", {
---	description = Colorize("#D2FF00", "Potion of Weakness").."\n" ..Colorize("#1719B6", "Weakness").. "\n" ..Colorize("#FF3800", "Armor: -%40 (.40)").. "\n" ..Colorize("#7131C0", "Duration: 20 seconds"),
---	inventory_image = "potion_liquid_overlay.png^[colorize:#7131C0:250^potion_bottle_overlay.png",
---	groups = {can_eat_when_full=1},
---	stack_max = 1,
---	on_place = on_secondary_use,
---	on_secondary_use = function(itemstack, user, pointed_thing)
---		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
---			user:set_properties({
---				armor_groups = { fleshy = 2000, crumbly = 2000 },
---			})
---
---				minetest.after(20, function()
---					user:set_properties({
---						armor_groups = { fleshy = 100, crumbly = 100 },
---						})
---					end)
---					potions.weakness_particles(user)
---					inv:add_item("main", "vessels:glass_bottle")
---				itemstack:take_item()
---				return itemstack
---				
---			end,
---})
+minetest.register_craftitem("potions:invisibility", {
+	description = Colorize("#D2FF00", "Potion of Invisibility").."\n" ..Colorize("#1719B6", "Invisibility").. "\n" ..Colorize("#FF3800", "Invisibility +%100 (1)").. "\n" ..Colorize("#4D4DFD", "Duration: 30 seconds"),
+	inventory_image = "potion_liquid_overlay.png^[colorize:#4D4DFD:250^potion_bottle_overlay.png",
+	groups = {can_eat_when_full=1},
+	stack_max = 1,
+	on_place = on_secondary_use,
+	on_secondary_use = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		user:set_properties({
+			visual_size = {x = 0, y = 0},
+			collisionbox = {0, 0, 0, 0, 0, 0}
+		})
+
+		user:set_nametag_attributes({
+			color = {a = 0, r = 255, g = 255, b = 255}
+		})
+			minetest.after(20, function()
+		user:set_properties({
+			visual_size = {x = 1, y = 1},
+			collisionbox = {-0.35, -1, -0.35, 0.35, 1, 0.35}
+		})
+
+		user:set_nametag_attributes({
+			color = {a = 255, r = 255, g = 255, b = 255}
+		})
+				end)
+					potions.invisibility_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
+})
 
 minetest.register_craftitem("potions:slowness_splash", {
 	description = Colorize("#D2FF00", "Splash Potion of Slowness").."\n" ..Colorize("#1719B6", "Slowness").. "\n" ..Colorize("#FF3800", "Speed: -6").. "\n" ..Colorize("#8B8BBB", "Duration: 10 seconds"),
@@ -2116,6 +2469,24 @@ minetest.register_craftitem("potions:slow_falling_splash", {
 		end,
 })
 
+minetest.register_craftitem("potions:invisibility_splash", {
+	description = Colorize("#D2FF00", "Splash Potion of Invisibility").."\n" ..Colorize("#1719B6", "Invisibility").. "\n" ..Colorize("#FF3800", "Invisibility: %100").. "\n" ..Colorize("#4D4DFD", "Duration: 20 seconds"),
+	inventory_image = "potion_liquid_overlay.png^[colorize:#4D4DFD:230^splash_potion_bottle_overlay.png",
+	groups = {can_eat_when_full=1},
+	stack_max = 1,
+	on_place = on_secondary_use,
+	on_secondary_use = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_invisibility_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
+})
+
 minetest.register_craft({
 	output = "potions:regeneration",
 	recipe = {
@@ -2176,6 +2547,15 @@ minetest.register_craft({
 		{"default:papyrus", "default:clay_brick", "default:papyrus"},
 		{"default:clay_brick", "vessels:glass_bottle", "default:clay_brick"},
 		{"default:papyrus", "default:clay_brick", "default:papyrus"}
+	}
+})
+
+minetest.register_craft({
+	output = "potions:invisibility",
+	recipe = {
+		{"default:diamondblock", "default:mese_crystal", "default:diamondblock"},
+		{"default:mese_crystal", "vessels:glass_bottle", "default:mese_crystal"},
+		{"default:diamondblock", "default:mese_crystal", "default:diamondblock"}
 	}
 })
 
@@ -2242,3 +2622,11 @@ minetest.register_craft({
 	}
 })
 
+minetest.register_craft({
+	output = "potions:invisibility_splash",
+	recipe = {
+		{"", "default:coal_lump", ""},
+		{"", "potions:invisibility", ""},
+		{"", "", ""}
+	}
+})
