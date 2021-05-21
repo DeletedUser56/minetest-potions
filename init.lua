@@ -2310,7 +2310,7 @@ minetest.register_craftitem("potions:slow_falling", {
 })
 
 minetest.register_craftitem("potions:invisibility", {
-	description = Colorize("#D2FF00", "Potion of Invisibility").."\n" ..Colorize("#1719B6", "Invisibility").. "\n" ..Colorize("#FF3800", "Invisibility +%100 (1)").. "\n" ..Colorize("#4D4DFD", "Duration: 30 seconds"),
+	description = Colorize("#D2FF00", "Potion of Invisibility").."\n" ..Colorize("#1719B6", "Invisibility").. "\n" ..Colorize("#FF3800", "Invisibility +%100").. "\n" ..Colorize("#4D4DFD", "Duration: 20 seconds"),
 	inventory_image = "potion_liquid_overlay.png^[colorize:#4D4DFD:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
