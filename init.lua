@@ -598,7 +598,6 @@ minetest.register_entity("potions:splash_invisibility_flying", {
 							if rad or potions.is_obj_hit(self, pos) then
 					obj:set_properties({
 					visual_size = {x = 0, y = 0},
-					collisionbox = {0, 0, 0, 0, 0, 0}
 					})
 
 					obj:set_nametag_attributes({
@@ -607,7 +606,6 @@ minetest.register_entity("potions:splash_invisibility_flying", {
 				minetest.after(20, function()
 					obj:set_properties({
 					visual_size = {x = 1, y = 1},
-					collisionbox = {-0.35, -1, -0.35, 0.35, 1, 0.35}
 					})
 
 				obj:set_nametag_attributes({
@@ -2319,7 +2317,6 @@ minetest.register_craftitem("potions:invisibility", {
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 		user:set_properties({
 			visual_size = {x = 0, y = 0},
-			collisionbox = {0, 0, 0, 0, 0, 0}
 		})
 
 		user:set_nametag_attributes({
@@ -2328,7 +2325,6 @@ minetest.register_craftitem("potions:invisibility", {
 			minetest.after(20, function()
 		user:set_properties({
 			visual_size = {x = 1, y = 1},
-			collisionbox = {-0.35, -1, -0.35, 0.35, 1, 0.35}
 		})
 
 		user:set_nametag_attributes({
