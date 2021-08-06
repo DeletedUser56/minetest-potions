@@ -1,1 +1,1 @@
-Sounds and some code taken from Mineclone2 by Wuzzy: https://github.com/Wuzzy2
+Sounds, some textures, and some code taken from Mineclone2 by Wuzzy: https://github.com/Wuzzy2
