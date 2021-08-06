@@ -1,4 +1,4 @@
 # minetest-potions
-Adds Potions with effects and particles to Minetest
+Adds potions with effects and particles to Minetest.
 
--- Note: Mod must be named 'potions' to function properly.
+-- Note: This mod must be named 'potions' to function properly.
