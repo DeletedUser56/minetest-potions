@@ -4,6 +4,7 @@ potions = {}
 local Colorize = minetest.colorize
 local w = 0.7
 local gravity = tonumber(minetest.settings:get("movement_gravity"))
+local help = "Use the `place` key to throw / drink."
 
 
 function potions.is_obj_hit(self, pos)
@@ -37,10 +38,10 @@ minetest.register_entity("potions:splash_slowness_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
-				minetest.add_particlespawner({
-					amount = 50,
+				minetest.add_particlespawner({ 
+ 	 				amount = 50,
 					time = 0.1,
 					minpos = {x=pos.x-d, y=pos.y+0.5, z=pos.z-d},
 					maxpos = {x=pos.x+d, y=pos.y+0.5+d, z=pos.z+d},
@@ -76,6 +77,60 @@ minetest.register_entity("potions:splash_slowness_flying", {
 	end
 })
 
+minetest.register_entity("potions:splash_healing_flying", {
+	visual = "sprite",
+	visual_size = {x=w/2,y=w/2},
+	collisionbox = {-0.1,-0.1,-0.1,0.1,0.1,0.1},
+	physical = false,
+	textures = {"potion_liquid_overlay.png^[colorize:#FF4074:168^splash_potion_bottle_overlay.png"},
+	acc = {x=0, y=-gravity, z=0},
+	pointable = false,
+		on_step = function(self, dtime)
+			local pos = self.object:get_pos()
+			local node = minetest.get_node(pos)
+			local n = node.name
+			local g = minetest.get_node_group(n, "liquid")
+			local d = 0.1
+			local redux_map = {7/8,0.5,0.25}
+			
+			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
+				self.object:remove()
+				minetest.add_particlespawner({ 
+ 	 				amount = 60,
+					time = 0.1,
+					minpos = {x=pos.x-d, y=pos.y+0.5, z=pos.z-d},
+					maxpos = {x=pos.x+d, y=pos.y+0.5+d, z=pos.z+d},
+					minvel = {x=-2, y=0, z=-2},
+					maxvel = {x=2, y=2, z=2},
+					minacc = acc,
+					maxacc = acc,
+					minexptime = 0.5,
+					maxexptime = 1.25,
+					minsize = 1,
+					maxsize = 2,
+					collisiondetection = true,
+					vertical = false,
+					texture = "potion_particle_overlay.png^[colorize:#FF4074:168",
+				})
+				for _,obj in pairs(minetest.get_objects_inside_radius(pos, 4)) do
+
+					local entity = obj:get_luaentity()
+					if obj:is_player() or entity._cmi_is_mob then
+
+						local pos2 = obj:get_pos()
+						local rad = math.floor(math.sqrt((pos2.x-pos.x)^2 + (pos2.y-pos.y)^2 + (pos2.z-pos.z)^2))
+							if rad or potions.is_obj_hit(self, pos) then
+						local hp = obj:get_hp()
+						obj:set_hp(hp + 5)
+							potions.healing_particles(obj)
+						end
+					end
+				end
+			end
+	end
+})
+
 minetest.register_entity("potions:splash_harming_flying", {
 	visual = "sprite",
 	visual_size = {x=w/2,y=w/2},
@@ -93,7 +148,7 @@ minetest.register_entity("potions:splash_harming_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 50,
@@ -170,7 +225,7 @@ minetest.register_entity("potions:splash_poison_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 50,
@@ -288,24 +343,7 @@ minetest.register_entity("potions:splash_poison_flying", {
 						damage_groups = {fleshy = 1}
 						}, nil)
 					end)
-					minetest.after(16, function()
-						obj:punch(obj, 16, {
-						full_punch_interval = 1.0,
-						damage_groups = {fleshy = 1}
-						}, nil)
-					end)
-					minetest.after(17, function()
-						obj:punch(obj, 17, {
-						full_punch_interval = 1.0,
-						damage_groups = {fleshy = 1}
-						}, nil)
-					end)
-					minetest.after(18, function()
-						obj:punch(obj, 18, {
-						full_punch_interval = 1.0,
-						damage_groups = {fleshy = 1}
-						}, nil)
-					end)
+
 					minetest.after(18.2, function()
 					end)
 					potions.poison_particles(obj)
@@ -333,7 +371,7 @@ minetest.register_entity("potions:splash_regeneration_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 50,
@@ -401,7 +439,7 @@ minetest.register_entity("potions:splash_haste_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 50,
@@ -457,7 +495,7 @@ minetest.register_entity("potions:splash_leaping_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 50,
@@ -513,7 +551,7 @@ minetest.register_entity("potions:splash_slow_falling_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 50,
@@ -569,7 +607,7 @@ minetest.register_entity("potions:splash_invisibility_flying", {
 			local redux_map = {7/8,0.5,0.25}
 			
 			if n ~= "air" and g == 0 or potions.is_obj_hit(self, pos) then
-				minetest.sound_play("potions_glass_break", {pos = pos, max_hear_distance = 16, gain = 1})
+				minetest.sound_play("mcl_potions_breaking_glass", {pos = pos, max_hear_distance = 16, gain = 1})
 				self.object:remove()
 				minetest.add_particlespawner({
 					amount = 58,
@@ -638,7 +676,7 @@ function potions.particles(obj, color)
 		maxsize = 1,
 		collisiondetection = false,
 		vertical = false,
-		texture = "potion_particle_overlay.png^[colorize:"..color..":230",
+		texture = "potion_particle_overlay.png^[colorize:"..color..":168",
 	})
 end
 
@@ -1476,144 +1514,145 @@ function potions.leaping_particles(user)
 			end)
 		end
 		
-function potions.weakness_particles(user)
-			if user:get_pos() then potions.particles(user, "#7131C0") end
+function potions.healing_particles(user)
+			if user:get_pos() then potions.particles(user, "#FF4074") end
 			minetest.after(1, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(1.9, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(2.8, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(3.7, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(4.6, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(5.5, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(6.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(7.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(8.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(9.1, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(10, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			minetest.after(0.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(1.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(2.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(3.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(4.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(5.1, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(6.1, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(7, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(7.8, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(8.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(9.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			minetest.after(0.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(1.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(2.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(3.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(4.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(5.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(6.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(7.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(8.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(9.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(10.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			minetest.after(0.6, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(1.5, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(2.5, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(3.5, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(4.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(5.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(6.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(7.4, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(8.0, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(9.2, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 			minetest.after(10.3, function()
-				if user:get_pos() then potions.particles(user, "#7131C0") end
+				if user:get_pos() then potions.particles(user, "#FF4074") end
 			end)
 		end
+-- TODO: Add potion of weakness, strength #7131C0, #E10009
 		
 function potions.slow_falling_particles(user)
 			if user:get_pos() then potions.particles(user, "#DBF4F3") end
@@ -2034,7 +2073,32 @@ minetest.register_craftitem("potions:regeneration", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:violet:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		local hp = user:get_hp()
+					minetest.after(1, function()
+						user:set_hp(hp +2)
+					end)
+					minetest.after(2, function()
+						user:set_hp(hp +4)
+					end)
+					minetest.after(3, function()
+						user:set_hp(hp +6)
+					end)
+					minetest.after(4, function()
+						user:set_hp(hp +8)
+					end)
+					minetest.after(5, function()
+						user:set_hp(hp +10)
+					end)
+					
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.regeneration_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+					
+				itemstack:take_item()
+				return itemstack
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 		local hp = user:get_hp()
@@ -2053,6 +2117,8 @@ minetest.register_craftitem("potions:regeneration", {
 					minetest.after(5, function()
 						user:set_hp(hp +10)
 					end)
+					
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.regeneration_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 					
@@ -2066,7 +2132,39 @@ minetest.register_craftitem("potions:harming", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#8B0000:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		local hp = user:get_hp()
+					minetest.after(0.3, function()
+						user:punch(user, 2, {
+						full_punch_interval = 0.3,
+						damage_groups = {fleshy = 4}
+						}, nil)
+					end)
+					minetest.after(0.7, function()
+						user:punch(user, 4, {
+						full_punch_interval = 0.3,
+						damage_groups = {fleshy = 4}
+						}, nil)
+					end)
+					minetest.after(0.11, function()
+						user:punch(user, 6, {
+						full_punch_interval = 0.3,
+						damage_groups = {fleshy = 4}
+						}, nil)
+					end)
+					minetest.after(0.15, function()
+						user:punch(user, 8, {
+						full_punch_interval = 0.3,
+						damage_groups = {fleshy = 4}
+						}, nil)
+					end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.harming_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 		local hp = user:get_hp()
@@ -2094,6 +2192,7 @@ minetest.register_craftitem("potions:harming", {
 						damage_groups = {fleshy = 4}
 						}, nil)
 					end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.harming_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
@@ -2106,7 +2205,125 @@ minetest.register_craftitem("potions:poison", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#5C7A5C:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		local hp = user:get_hp()
+					minetest.after(1, function()
+						user:punch(user, 1, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(2, function()
+						user:punch(user, 2, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(3, function()
+						user:punch(user, 3, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(4, function()
+						user:punch(user, 4, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(5, function()
+						user:punch(user, 5, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(6, function()
+						user:punch(user, 6, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(7, function()
+						user:punch(user, 7, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(8, function()
+						user:punch(user, 8, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(9, function()
+						user:punch(user, 9, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(10, function()
+						user:punch(user, 10, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(11, function()
+						user:punch(user, 11, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(12, function()
+						user:punch(user, 12, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(13, function()
+						user:punch(user, 13, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(14, function()
+						user:punch(user, 14, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(15, function()
+						user:punch(user, 15, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(16, function()
+						user:punch(user, 16, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(17, function()
+						user:punch(user, 17, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(18, function()
+						user:punch(user, 18, {
+						full_punch_interval = 1.0,
+						damage_groups = {fleshy = 1}
+						}, nil)
+					end)
+					minetest.after(18.2, function()
+					end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.poison_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 		local hp = user:get_hp()
@@ -2220,6 +2437,7 @@ minetest.register_craftitem("potions:poison", {
 					end)
 					minetest.after(18.2, function()
 					end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.poison_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
@@ -2232,13 +2450,26 @@ minetest.register_craftitem("potions:slowness", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#8B8BBB:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+			user:set_physics_override({speed = 0.5})
+				minetest.after(20, function()
+					user:set_physics_override({speed = 1})
+				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.slowness_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 			user:set_physics_override({speed = 0.5})
 				minetest.after(20, function()
 					user:set_physics_override({speed = 1})
 				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.slowness_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
@@ -2252,13 +2483,26 @@ minetest.register_craftitem("potions:swiftness", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#58FF00:127^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+			user:set_physics_override({speed = 1.40})
+				minetest.after(20, function()
+					user:set_physics_override({speed = 1})
+				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.haste_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 			user:set_physics_override({speed = 1.40})
 				minetest.after(20, function()
 					user:set_physics_override({speed = 1})
 				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.haste_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
@@ -2272,13 +2516,26 @@ minetest.register_craftitem("potions:leaping", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#61FFC9:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+			user:set_physics_override({jump = 1.40})
+				minetest.after(20, function()
+					user:set_physics_override({jump = 1})
+				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.leaping_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 			user:set_physics_override({jump = 1.40})
 				minetest.after(20, function()
 					user:set_physics_override({jump = 1})
 				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.leaping_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
@@ -2292,13 +2549,26 @@ minetest.register_craftitem("potions:slow_falling", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#DBF4F3:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+			user:set_physics_override({gravity = 0.6})
+				minetest.after(10, function()
+					user:set_physics_override({gravity = 1})
+				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.slow_falling_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 			user:set_physics_override({gravity = 0.6})
 				minetest.after(10, function()
 					user:set_physics_override({gravity = 1})
 				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.slow_falling_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
@@ -2312,7 +2582,31 @@ minetest.register_craftitem("potions:invisibility", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#4D4DFD:250^potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		user:set_properties({
+			visual_size = {x = 0, y = 0},
+		})
+
+		user:set_nametag_attributes({
+			color = {a = 0, r = 255, g = 255, b = 255}
+		})
+			minetest.after(20, function()
+		user:set_properties({
+			visual_size = {x = 1, y = 1},
+		})
+
+		user:set_nametag_attributes({
+			color = {a = 255, r = 255, g = 255, b = 255}
+		})
+				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.invisibility_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
 		user:set_properties({
@@ -2331,7 +2625,37 @@ minetest.register_craftitem("potions:invisibility", {
 			color = {a = 255, r = 255, g = 255, b = 255}
 		})
 				end)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
 					potions.invisibility_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
+})
+
+minetest.register_craftitem("potions:healing", {
+	description = Colorize("#D2FF00", "Potion of Healing").."\n" ..Colorize("#1719B6", "Instant Healing").. "\n" ..Colorize("#FF4074", "+%6 HP").. "\n" ..Colorize("#4D4DFD", "Duration: 1 seconds"),
+	inventory_image = "potion_liquid_overlay.png^[colorize:#FF4074:250^potion_bottle_overlay.png",
+	groups = {can_eat_when_full=1},
+	stack_max = 1,
+	on_place = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		local hp = user:get_hp()
+					user:set_hp(hp + 6)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.invisibility_particles(user)
+					inv:add_item("main", "vessels:glass_bottle")
+				itemstack:take_item()
+				return itemstack
+				
+			end,
+	on_secondary_use = function(itemstack, user, pointed_thing)
+		local inv = minetest.get_inventory({type="player", name=user:get_player_name()})
+		local hp = user:get_hp()
+					user:set_hp(hp + 6)
+					minetest.sound_play("mcl_potions_drinking", {pos = pos, max_hear_distance = 16, gain = 1})
+					potions.healing_particles(user)
 					inv:add_item("main", "vessels:glass_bottle")
 				itemstack:take_item()
 				return itemstack
@@ -2344,7 +2668,16 @@ minetest.register_craftitem("potions:slowness_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#8B8BBB:250^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_slowness_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2362,7 +2695,16 @@ minetest.register_craftitem("potions:harming_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#540000:250^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_harming_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2380,7 +2722,16 @@ minetest.register_craftitem("potions:poison_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#5C7A5C:250^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_poison_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2398,7 +2749,16 @@ minetest.register_craftitem("potions:regeneration_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:violet:250^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_regeneration_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2416,7 +2776,16 @@ minetest.register_craftitem("potions:swiftness_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#58FF00:250^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_haste_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2434,7 +2803,16 @@ minetest.register_craftitem("potions:leaping_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#61FFC9:220^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_leaping_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2452,7 +2830,16 @@ minetest.register_craftitem("potions:slow_falling_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#DBF4F3:220^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_slow_falling_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
@@ -2470,12 +2857,48 @@ minetest.register_craftitem("potions:invisibility_splash", {
 	inventory_image = "potion_liquid_overlay.png^[colorize:#4D4DFD:230^splash_potion_bottle_overlay.png",
 	groups = {can_eat_when_full=1},
 	stack_max = 1,
-	on_place = on_secondary_use,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_invisibility_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
 			local velocity = 6
 			local dir = user:get_look_dir();
 			local pos = user:get_pos();
 			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_invisibility_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
+})
+
+minetest.register_craftitem("potions:healing_splash", {
+	description = Colorize("#D2FF00", "Splash Potion of Healing").."\n" ..Colorize("#1719B6", "Healing").. "\n" ..Colorize("#FF4074", "+6% HP").. "\n" ..Colorize("#4D4DFD", "Duration: 1 seconds"),
+	inventory_image = "potion_liquid_overlay.png^[colorize:#FF4074:230^splash_potion_bottle_overlay.png",
+	groups = {can_eat_when_full=1},
+	stack_max = 1,
+	on_place = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_healing_flying")
+			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
+			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
+			itemstack:take_item()
+			return itemstack
+		end,
+	on_secondary_use = function(itemstack, user, pointed_thing)
+			local velocity = 6
+			local dir = user:get_look_dir();
+			local pos = user:get_pos();
+			local obj = minetest.add_entity({x=pos.x+dir.x,y=pos.y+2+dir.y,z=pos.z+dir.z}, "potions:splash_healing_flying")
 			obj:set_velocity({x=dir.x*velocity,y=dir.y*velocity,z=dir.z*velocity})
 			obj:set_acceleration({x=dir.x*-3, y=-9.8, z=dir.z*-3})
 			itemstack:take_item()
@@ -2538,6 +2961,14 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
+	output = "potions:healing",
+	recipe = {
+		{"flowers:mushroom_brown", "potions:harming", "default:papyrus"},
+
+	}
+})
+
+minetest.register_craft({
 	output = "potions:slow_falling",
 	recipe = {
 		{"default:papyrus", "default:clay_brick", "default:papyrus"},
@@ -2558,71 +2989,71 @@ minetest.register_craft({
 minetest.register_craft({
 	output = "potions:regeneration_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:regeneration", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:regeneration"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:harming_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:harming", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:harming"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:poison_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:poison", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:poison"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:slowness_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:slowness", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:slowness"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:swiftness_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:swiftness", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:swiftness"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:leaping_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:leaping", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:leaping"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:slow_falling_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:slow_falling", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:slow_falling"}
 	}
 })
 
 minetest.register_craft({
 	output = "potions:invisibility_splash",
 	recipe = {
-		{"", "default:coal_lump", ""},
-		{"", "potions:invisibility", ""},
-		{"", "", ""}
+		{"default:coal_lump"},
+		{"potions:invisibility"}
+	}
+})
+
+minetest.register_craft({
+	output = "potions:healing_splash",
+	recipe = {
+		{"default:coal_lump"},
+		{"potions:healing"}
 	}
 })
